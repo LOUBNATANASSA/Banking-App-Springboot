@@ -6,6 +6,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/accounts")
 public class AccountController {
@@ -28,4 +31,29 @@ public class AccountController {
         return ResponseEntity.ok(accountDto);
 
     }
+
+    //deposit REST API
+    @PutMapping("/{id}/deposit")
+    public ResponseEntity<AccountDto> deposit(@PathVariable Long id,
+                                              @RequestBody Map<String,Double> request) {
+        AccountDto accountDto=accountService.deposit(id,request.get("amount"));
+        return ResponseEntity.ok(accountDto);
+    }
+
+    //withdraw REST API
+    @PostMapping("/{id}/withdraw")
+    public ResponseEntity<AccountDto> widthraw (@PathVariable long id,@RequestBody Map<String,Double> request) {
+        double amount=request.get("amount");
+        AccountDto accountDto=accountService.withdraw(id,amount);
+        return ResponseEntity.ok(accountDto);
+    }
+
+
+    @GetMapping
+    public ResponseEntity<List<AccountDto>> getAllAccounts() {
+        List<AccountDto> accounts = accountService.getAllAccounts();
+        return ResponseEntity.ok(accounts);
+    }
+
+
 }

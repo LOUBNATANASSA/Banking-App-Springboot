@@ -8,6 +8,9 @@ import net.javaguides.banking_app.service.AccountService;
 import org.springframework.stereotype.Service;
 
 import javax.security.auth.login.AccountNotFoundException;
+import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -29,5 +32,37 @@ public class AccountServiceImpl implements AccountService {
     public AccountDto getAccountById(long id) {
         Account account= accountRepository.findById(id).orElseThrow(() -> new RuntimeException("Account not found"));
         return AccountMapper.maptoAccountDto(account);
+    }
+
+    @Override
+    public AccountDto deposit(long id, double amount) {
+        Account account = accountRepository.findById(id).orElseThrow(() -> new RuntimeException("Account not found"));
+        double total = account.getBalance()+amount;
+        account.setBalance(total);
+        Account savedAccount = accountRepository.save(account);
+        return AccountMapper.maptoAccountDto(savedAccount);
+    }
+
+    @Override
+    public AccountDto withdraw(long id, double amount) {
+        Account account = accountRepository.findById(id).orElseThrow(() -> new RuntimeException("Account not found"));
+    if(account.getBalance()<amount){
+        throw new RuntimeException("insufficiant amount");
+
+    }
+    double total = account.getBalance()-amount;
+    account.setBalance(total);
+    accountRepository.save(account);
+    Account savedAccout = accountRepository.save(account);
+
+        return AccountMapper.maptoAccountDto(savedAccout);
+    }
+
+    @Override
+    public List<AccountDto> getAllAccounts() {
+        List<Account> accounts = accountRepository.findAll();
+        return accounts.stream()
+                .map(account -> AccountMapper.maptoAccountDto(account))
+                .collect(Collectors.toList());
     }
 }
